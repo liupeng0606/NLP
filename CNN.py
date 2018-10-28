@@ -23,11 +23,6 @@ print("Sample reviews are ")
 print(df.loc[:5,['review','sentiment']])
 
 
-corpus = []
-s = set(stopwords.words('english'))
-s.remove('not')
-print("Stopwords length", len(s))
-
 word2vec = {}
 with open('glove.6B.50d.txt', encoding="utf8") as f:
   # is just a space-separated text file in the format:
