@@ -14,6 +14,7 @@ from keras import regularizers
 from sklearn.model_selection import train_test_split
 nltk.download('stopwords')
 
+#------------------read data------------------------------------
 
 df = pd.read_csv("labeledTrainData.tsv", sep = '\t',
                  error_bad_lines=False )
@@ -23,6 +24,7 @@ print("Sample reviews are ")
 print(df.loc[:5,['review','sentiment']])
 
 
+#------------------dict[word]=vec------------------------------------
 word2vec = {}
 with open('glove.6B.50d.txt', encoding="utf8") as f:
   # is just a space-separated text file in the format:
@@ -34,7 +36,7 @@ with open('glove.6B.50d.txt', encoding="utf8") as f:
         word2vec[word] = vec
 print('Found %s word vectors.' % len(word2vec))
 
-
+#------------------make N x T matrix------------------------------------
 MAX_VCOCAB_SIZE = 5000
 EMBEDDING_DIM = 50
 MAX_SEQUENCE_LENGTH = 1500
@@ -53,7 +55,7 @@ print("Total documents ", tokenizer.document_count)
 print("max sequence length:", max(len(s) for s in documents))
 print("min sequence length:", min(len(s) for s in documents))
 
-# pad sequences so that we get a N x T matrix
+# pad sequencest to a N x T matrix
 data = pad_sequences(documents, maxlen=MAX_SEQUENCE_LENGTH, padding='post')
 print('Shape of data tensor:', data.shape)
 print(data[1])
@@ -71,7 +73,7 @@ print("Sample embedded dimension ")
 print(embedding_matrix[10][:5])
 
 
-
+#------------------use Sequential model------------------------------------
 embedding_layer = Embedding(
   token_count,
   EMBEDDING_DIM,
@@ -103,6 +105,8 @@ model.compile(loss='binary_crossentropy',optimizer='adam',metrics=['accuracy'])
 
 x_train, x_test, y_train, y_test = train_test_split(data, df['sentiment'],
                                                     test_size=0.2, random_state=42)
+
+#------------------fit------------------------------------
 model.fit(x_train, y_train , batch_size=96, epochs=35, validation_split = 0.25)
 
 score = model.evaluate(x_test, y_test, batch_size=32)
